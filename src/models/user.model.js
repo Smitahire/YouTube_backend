@@ -21,12 +21,12 @@ const userSchema = new mongoose.Schema(
         },
         fullname: {
             type: String,
-            require: true,
+            required: true,
             lowercase: true,
             trim: true,
             index: true,
         },
-        avtar: {
+        avatar: {
             type: String,// cloudnary url
             required: true,
         },
