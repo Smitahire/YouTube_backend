@@ -6,9 +6,12 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 const registerUser = asyncHandler( async (req, res) => {
     
+    console.log("rer.body : ", req.body);
+    console.log("rer.file : ", req.files);
+
     // get user details from frontend
     const {username, email, fullname, password} = req.body
-    console.log("email: ", email);
+    
 
     // validation - not empty
     if(
@@ -27,7 +30,12 @@ const registerUser = asyncHandler( async (req, res) => {
 
     // check for images, check for avatar
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    const covarImageLocalPath = req.files?.coverimage[0]?.path;
+    //const covarImageLocalPath = req.files?.coverimage[0]?.path;
+
+    let covarImageLocalPath;
+    if(req.files && Array.isArray(req.files.coverimage) && req.files.coverimage.length >0){
+        covarImageLocalPath = req.files.coverimage[0].path;
+    }
     
     if(!avatarLocalPath){
         throw new ApiError(400, "Avatar file is require")
@@ -36,7 +44,7 @@ const registerUser = asyncHandler( async (req, res) => {
     // upload them to cloudinary, avatar
 
     const avatar = await uploadOnCloudinary(avatarLocalPath);
-    const coverImage = await uploadOnCloudinary(covarImageLocalPath);
+    const coverimage = await uploadOnCloudinary(covarImageLocalPath);
 
     if(!avatar){
         throw new ApiError(400, "Avatar file is require")
@@ -50,7 +58,7 @@ const registerUser = asyncHandler( async (req, res) => {
             email,
             fullname,
             avatar: avatar.url,
-            coverImage: coverImage?.url || "",
+            coverimage: coverimage?.url || "",
             password,
             
         }
