@@ -18,8 +18,6 @@ app.use(cookieParese())
 // routes 
 import userRoutre from "./routes/user.routes.js";
 
-
-
 //routes declaration 
 app.use("/api/v1/users", userRoutre) //http://localhost:8000/api/v1/users/register
 
