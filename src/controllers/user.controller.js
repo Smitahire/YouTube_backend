@@ -4,11 +4,17 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
-const generateAccessAndRefreshToken = async(userId) => {
+const generateAccessAndRefreshTokens = async(userId) => {
     try {
+
         const user = await User.findById(userId)
-        const accessToken = user.genrateAccessToken()
-        const refreshToken = user.generateRefreshToken()
+        
+        if (!user) {
+            throw new ApiError(404, "User not found while generating tokens");
+        }
+
+        const accessToken =  await user.generateAccessToken()
+        const refreshToken =  await user.generateRefreshToken()
 
         user.refreshToken = refreshToken
         await user.save({validateBeforeSave: false})
@@ -98,10 +104,11 @@ const registerUser = asyncHandler( async (req, res) => {
 
 const loginUser = asyncHandler( async (req,res) => {
     
-    // req body -> data
+    
     const {username, email, password} = req.body
+    
 
-    if(!(username || email)){
+    if(!username && !email){
         throw new ApiError(400, "username or email is required!!")
     }
 
@@ -120,9 +127,10 @@ const loginUser = asyncHandler( async (req,res) => {
     if(!isPasswordValid){
         throw new ApiError(401, " Invalid user credentials")
     }
-    
+
+
     // access and refresh token
-    const {accessToken, refreshToken}= await generateAccessAndRefreshToken(user._id)
+    const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
     
     // send cookies
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
